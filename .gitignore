@@ -1,0 +1,6 @@
+.env
+market-lister
+*.exe
+*.log
+.vscode/
+.idea/

@@ -2,7 +2,7 @@
 
 Generate marketplace listing drafts from product photos using Gemini Vision.
 
-![Go](https://img.shields.io/badge/go-1.24%2B-00ADD8) ![License](https://img.shields.io/badge/license-MIT-blue)
+![Go](https://img.shields.io/badge/go-1.25%2B-00ADD8) ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ## What it does
 
@@ -21,7 +21,7 @@ Each subfolder in `INPUT_DIR` represents one item. The folder name is passed to 
 
 ## Setup
 
-Requires Go 1.24+.
+Requires Go 1.25+.
 
 ```bash
 git clone https://github.com/tanjaduro/market-lister && cd market-lister

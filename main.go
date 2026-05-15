@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"log/slog"
 	"os"
@@ -123,8 +124,14 @@ func processFolder(cfg Config, client *genai.Client, folderPath string) result {
 	}
 	outputPath := outputMDPath(cfg, folderPath, slug)
 
+	// Only proceed when the output path is confirmed absent. On any other Stat
+	// error (permission denied, EIO, stale handle, etc.) we skip the item rather
+	// than risk clobbering an existing file we couldn't observe.
 	if _, err := os.Stat(outputPath); err == nil {
 		slog.Warn("skipping, already processed", "folder", hint, "path", outputPath)
+		return resultSkipped
+	} else if !errors.Is(err, os.ErrNotExist) {
+		slog.Warn("skipping, cannot stat output path", "folder", hint, "path", outputPath, "error", err)
 		return resultSkipped
 	}
 

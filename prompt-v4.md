@@ -284,7 +284,7 @@ Verify: YAML frontmatter is valid, all attribute keys appear, flaws section rend
 
 ## Code style
 
-- Go 1.22+. All identifiers, comments, doc comments, README in English.
+- Go 1.24+. All identifiers, comments, doc comments, README in English.
 - Explicit error handling. No panic except in `main` for unrecoverable startup.
 - No interfaces, no factories, no DI.
 - `gofmt` clean, `go vet` clean.

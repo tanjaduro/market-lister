@@ -56,7 +56,7 @@ func Describe(ctx context.Context, client *genai.Client, folderPath, hint string
 	config := &genai.GenerateContentConfig{
 		SystemInstruction:  genai.NewContentFromText(systemPrompt, ""),
 		ResponseMIMEType:   "application/json",
-		ResponseJsonSchema: itemJSONSchema(),
+		ResponseJsonSchema: itemSchema,
 	}
 
 	resp, err := client.Models.GenerateContent(ctx, cfg.GeminiModel, contents, config)
@@ -137,6 +137,12 @@ func validateItem(item Item) error {
 	}
 	return nil
 }
+
+// itemSchema is the JSON Schema document handed to Gemini's structured-output
+// mode for every Describe call. It is immutable and identical across the
+// process lifetime; building it once at package load avoids re-allocating the
+// nested map on every request.
+var itemSchema = itemJSONSchema()
 
 // itemJSONSchema describes the Item struct as a JSON Schema document for the
 // model's structured-output mode. We use ResponseJsonSchema (not ResponseSchema)

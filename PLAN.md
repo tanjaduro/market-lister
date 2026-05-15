@@ -21,6 +21,7 @@ Source spec: `prompt-v4.md` (pasted into the session). This plan freezes the des
 | 11 | `OUTPUT_DIR` is created with `os.MkdirAll` at startup if it doesn't exist; abort with clear error if mkdir fails | Avoid per-item `os.WriteFile` failures when the user supplies a not-yet-existing output dir. Fail fast at startup, not 30 items in. |
 | 12 | Markdown image links use angle-bracket syntax `![](<path>)` instead of bare `![](path)` | Folder names contain spaces (e.g. "reima pink 24"); bare paths break in Markdown renderers. Angle brackets are simpler than URL-encoding and stay human-readable. |
 | 13 | `processFolder` computes `today := time.Now()` once and uses it for both elapsed-time logging and `Render()`'s date | Two `time.Now()` calls in the same function is sloppy and can produce inconsistent timestamps across midnight. |
+| 14 | Minimum Go version is **1.24** (was 1.22 in the original spec) | `google.golang.org/genai` v1.57+ requires Go 1.24. The SDK is the source of truth for unified Gemini API access; do not downgrade. `go.mod` declares `go 1.24`; README badge and Setup already reflect this. |
 
 ---
 

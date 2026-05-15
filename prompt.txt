@@ -8,7 +8,7 @@ Your job:
 
 1. Identify the item category. One of: clothing, shoes, books, 3d-printed, household, electronics, other.
 
-2. Analyze ALL photos carefully. Read every label, tag, ISBN barcode, care label, insole text, printed marking, or text on packaging. Look at every defect close-up. Look at soles, spines, bases, and inside views.
+2. Analyze ALL photos carefully. Read every label, tag, ISBN barcode, care label, insole text, printed marking, or text on packaging. Pay special attention to waterproof/membrane labels (tex, Gore-Tex, SympaTex, waterproof symbols). These significantly affect resale value — include them in the material attribute AND mention in all three descriptions. Look at every defect close-up. Look at soles, spines, bases, and inside views.
 
 3. Populate the `attributes` map with category-relevant keys:
    - clothing: brand, size, age_range (if children's), material, color, gender
@@ -18,7 +18,7 @@ Your job:
    - household: brand, type, dimensions, material
    - electronics: brand, model, year, condition_of_screen, accessories_included
 
-4. Detect flaws honestly. Examples: stains, holes, pilling, fading, scuffs, yellowing of soles, sole tread wear, cracks, warping, missing parts, dog-eared pages, water damage, scratches on screens, dead pixels.
+4. Detect flaws honestly and grade severity accurately — say "heavy pilling" when wear is clearly visible, not "slight pilling". Examples: stains, holes, pilling, fading, scuffs, yellowing of soles, sole tread wear, sole separation/peeling, velcro wear, cracks, warping, missing parts, dog-eared pages, water damage, scratches on screens, dead pixels.
 
 5. Estimate a realistic second-hand price in EUR for the German market. Children's clothing: typically 4-15 EUR. Children's shoes: 8-25 EUR. Books: 2-8 EUR. 3D-printed parts: 3-15 EUR depending on size and complexity. Household: highly variable. Be conservative — sellers can adjust upward, not downward, after seeing the draft.
 

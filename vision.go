@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"google.golang.org/genai"
 )
@@ -59,7 +60,12 @@ func Describe(ctx context.Context, client *genai.Client, folderPath, hint string
 		ResponseJsonSchema: itemSchema,
 	}
 
-	resp, err := client.Models.GenerateContent(ctx, cfg.GeminiModel, contents, config)
+	var resp *genai.GenerateContentResponse
+	err = retryOnTransient(ctx, func() error {
+		var callErr error
+		resp, callErr = client.Models.GenerateContent(ctx, cfg.GeminiModel, contents, config)
+		return callErr
+	})
 	if err != nil {
 		return Item{}, nil, fmt.Errorf("generate content: %w", err)
 	}
@@ -186,4 +192,53 @@ func itemJSONSchema() any {
 			"price_estimate_eur", "attributes", "ocr_notes",
 		},
 	}
+}
+
+// retryDelays defines the wait between successive attempts in retryOnTransient.
+// len(retryDelays)+1 = total attempts. Exposed as a var so tests can shorten it.
+var retryDelays = []time.Duration{5 * time.Second, 15 * time.Second}
+
+// retryOnTransient runs fn, and on a transient-looking error sleeps and retries
+// up to len(retryDelays) more times. Non-transient errors are returned
+// immediately. After all attempts are exhausted, the last error is returned.
+// If ctx is cancelled during a backoff sleep, ctx.Err() is returned instead of
+// waiting out the remaining delay.
+func retryOnTransient(ctx context.Context, fn func() error) error {
+	var err error
+	for attempt := 1; attempt <= len(retryDelays)+1; attempt++ {
+		err = fn()
+		if err == nil {
+			return nil
+		}
+		if !isRetryableError(err) {
+			return err
+		}
+		if attempt > len(retryDelays) {
+			break
+		}
+		wait := retryDelays[attempt-1]
+		slog.Warn("retrying after transient error",
+			"attempt", attempt, "wait", wait, "error", err)
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(wait):
+		}
+	}
+	return err
+}
+
+// isRetryableError reports whether err's string contains one of the markers
+// Gemini uses for overload / rate-limit / unavailable responses.
+func isRetryableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	s := err.Error()
+	for _, marker := range []string{"503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED"} {
+		if strings.Contains(s, marker) {
+			return true
+		}
+	}
+	return false
 }

@@ -2,5 +2,6 @@
 market-lister
 *.exe
 *.log
+*.tar.gz
 .vscode/
 .idea/

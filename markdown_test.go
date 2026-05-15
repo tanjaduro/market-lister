@@ -10,9 +10,9 @@ func TestRender(t *testing.T) {
 	fixedDate := time.Date(2026, 5, 14, 0, 0, 0, 0, time.UTC)
 
 	reimaItem := Item{
-		TitleEN:  "Reima pink kids sneakers, EU 24 / US 8 (16 cm)",
-		TitleDE:  "Reima rosa Kinder-Sneaker, Gr. 24 / US 8 (16 cm)",
-		Category: "shoes",
+		TitleEN:   "Reima pink kids sneakers, EU 24 / US 8 (16 cm)",
+		TitleDE:   "Reima rosa Kinder-Sneaker, Gr. 24 / US 8 (16 cm)",
+		Category:  "shoes",
 		Condition: "used-good",
 		Flaws: []string{
 			"white midsole scuffed and yellowed at toe area",
@@ -34,13 +34,13 @@ func TestRender(t *testing.T) {
 	}
 
 	zaraItem := Item{
-		TitleEN:             "Zara floral dress, kids size 104",
-		TitleDE:             "Zara Blumenkleid, Gr. 104",
-		Category:            "clothing",
-		Condition:           "used-excellent",
-		Flaws:               nil,
-		DescriptionVintedEN: "Zara floral dress, size 104. Excellent condition, no visible flaws. From a smoke-free home.",
-		DescriptionVintedDE: "Zara Blumenkleid, Größe 104. Sehr guter Zustand, keine sichtbaren Mängel. Aus tierfreiem Nichtraucherhaushalt.",
+		TitleEN:                    "Zara floral dress, kids size 104",
+		TitleDE:                    "Zara Blumenkleid, Gr. 104",
+		Category:                   "clothing",
+		Condition:                  "used-excellent",
+		Flaws:                      nil,
+		DescriptionVintedEN:        "Zara floral dress, size 104. Excellent condition, no visible flaws. From a smoke-free home.",
+		DescriptionVintedDE:        "Zara Blumenkleid, Größe 104. Sehr guter Zustand, keine sichtbaren Mängel. Aus tierfreiem Nichtraucherhaushalt.",
 		DescriptionKleinanzeigenDE: "Zara Blumenkleid, Größe 104. Sehr guter Zustand, keine sichtbaren Mängel. Aus tierfreiem Nichtraucherhaushalt. Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme.",
 		PriceEstimateEUR:           8,
 		Attributes: map[string]string{

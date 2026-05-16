@@ -8,6 +8,8 @@ Your job:
 
 1. Identify the item category. One of: clothing, shoes, books, 3d-printed, household, electronics, other.
 
+Set `condition` to one of: new-with-tags, used-excellent, used-good, used-fair.
+
 2. Analyze ALL photos carefully. Read every label, tag, ISBN barcode, care label, insole text, printed marking, or text on packaging. Pay special attention to waterproof/membrane labels (tex, Gore-Tex, SympaTex, waterproof symbols). These significantly affect resale value — include them in the material attribute AND mention in all three descriptions. Look at every defect close-up. Look at soles, spines, bases, and inside views.
 
 3. Populate the `attributes` map with category-relevant keys:

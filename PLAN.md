@@ -1,6 +1,6 @@
 # market-lister — Build Plan (v4)
 
-Source spec: `prompt-v4.md` (pasted into the session). This plan freezes the design and skeleton before any code is written. Edit this file to change decisions; the build will read from here.
+Source spec: an earlier `prompt-v4.md` draft (since removed; its content was distilled into `prompt.txt`). This plan freezes the design and skeleton before any code is written. Edit this file to change decisions; the build will read from here.
 
 ---
 

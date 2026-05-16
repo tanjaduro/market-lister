@@ -141,6 +141,10 @@ func validateItem(item Item) error {
 	if item.PriceEstimateEUR < 0 {
 		return fmt.Errorf("price_estimate_eur is negative")
 	}
+	if !strings.Contains(item.DescriptionKleinanzeigenDE, "Privatverkauf") ||
+		!strings.Contains(item.DescriptionKleinanzeigenDE, "keine Garantie oder Rücknahme") {
+		return fmt.Errorf("description_kleinanzeigen_de missing required disclaimer")
+	}
 	return nil
 }
 

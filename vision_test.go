@@ -99,12 +99,14 @@ func TestRetryOnTransient(t *testing.T) {
 }
 
 func TestValidateItem(t *testing.T) {
+	validDisclaimer := "Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme."
 	valid := Item{
-		TitleEN:          "ok",
-		TitleDE:          "ok",
-		Category:         "books",
-		Condition:        "used-good",
-		PriceEstimateEUR: 5,
+		TitleEN:                    "ok",
+		TitleDE:                    "ok",
+		Category:                   "books",
+		Condition:                  "used-good",
+		PriceEstimateEUR:           5,
+		DescriptionKleinanzeigenDE: validDisclaimer,
 	}
 	mutate := func(f func(*Item)) Item {
 		i := valid
@@ -128,6 +130,14 @@ func TestValidateItem(t *testing.T) {
 		{"invalid condition", mutate(func(i *Item) { i.Condition = "almost-new" }), true},
 		{"negative price", mutate(func(i *Item) { i.PriceEstimateEUR = -1 }), true},
 		{"zero price ok", mutate(func(i *Item) { i.PriceEstimateEUR = 0 }), false},
+		{"kleinanzeigen with full disclaimer passes", mutate(func(i *Item) { i.DescriptionKleinanzeigenDE = validDisclaimer }), false},
+		{"kleinanzeigen missing Privatverkauf", mutate(func(i *Item) {
+			i.DescriptionKleinanzeigenDE = "Abholung in Panketal oder Versand gegen Aufpreis möglich. keine Garantie oder Rücknahme."
+		}), true},
+		{"kleinanzeigen missing disclaimer phrase", mutate(func(i *Item) {
+			i.DescriptionKleinanzeigenDE = "Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf."
+		}), true},
+		{"kleinanzeigen empty", mutate(func(i *Item) { i.DescriptionKleinanzeigenDE = "" }), true},
 	}
 
 	for _, tc := range cases {

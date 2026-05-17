@@ -319,7 +319,14 @@ type contentGenerator interface {
 func Describe(ctx context.Context, gen contentGenerator, folderPath, hint string, cfg Config) (Item, []string, error) { ... }
 ```
 
-`*genai.Models` already has this method signature, so callers in `main.go` change from `Describe(ctx, client, ...)` to `Describe(ctx, client.Models, ...)`. One-line caller change.
+`*genai.Models` already has this method signature, so the type plumbing is:
+
+- New interface declared in `vision.go`.
+- `Describe` parameter `client *genai.Client` → `gen contentGenerator`.
+- `processFolder` (main.go:118) parameter changes the same way, since it forwards the client.
+- `main()` at main.go:81 passes `client.Models` instead of `client`.
+
+Four small edits, all in two files — not a refactor.
 
 Test cases against a fake:
 
@@ -435,7 +442,7 @@ jobs:
         with: { go-version: '1.25' }
       - uses: golangci/golangci-lint-action@v6
         with: { version: latest }
-      - run: go vet ./...
+      # govet is enabled in .golangci.yml, no separate step.
       - run: go test -race -coverprofile=cover.out ./...
       - name: enforce coverage
         run: |
@@ -450,7 +457,10 @@ jobs:
   evals:
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.modified, 'prompt.txt')
+    # Triggers from a separate workflow file with `on: push` + `paths: [prompt.txt]`
+    # plus `workflow_dispatch`. Don't use `contains(github.event.head_commit.modified, …)`
+    # — head_commit is null on pull_request events and the condition silently goes false.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -605,7 +615,7 @@ Failure mode: a `"shoes"` listing without a `brand` key would now fail validatio
 Already using `slog` with the default text handler. Worth adding:
 
 ```go
-// in main.go init():
+// in main(), before LoadConfig (so config errors are logged at the chosen level):
 level := slog.LevelInfo
 if s := os.Getenv("LOG_LEVEL"); s != "" {
     switch strings.ToLower(s) {

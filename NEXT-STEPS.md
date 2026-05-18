@@ -591,23 +591,7 @@ If rationale for prompt design needs to live somewhere, put it in a sibling `pro
 
 ### 7.2 CHANGELOG.md
 
-Yes. Hand-maintained, SemVer-lite. Today's state is v0.1.0. Format:
-
-```markdown
-# Changelog
-
-All notable changes are recorded here.
-
-## [Unreleased]
-
-## [0.1.0] — 2026-05-17
-
-### Added
-- Initial release: process photo folders to Gemini, render Markdown listings.
-- Support for clothing, shoes, books, 3d-printed, household, electronics, other.
-- Retry on 429/503/UNAVAILABLE/RESOURCE_EXHAUSTED.
-- Kleinanzeigen disclaimer enforcement via validateItem.
-```
+Shipped — see `CHANGELOG.md` at repo root. Hand-maintained, SemVer-lite. v0.1.0 is the state at the time this roadmap was drafted; everything since lives under `[Unreleased]`.
 
 Bump policy:
 

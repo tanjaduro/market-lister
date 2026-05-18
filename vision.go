@@ -141,9 +141,9 @@ func validateItem(item Item) error {
 	if item.PriceEstimateEUR < 0 {
 		return fmt.Errorf("price_estimate_eur is negative")
 	}
-	if !strings.Contains(item.DescriptionKleinanzeigenDE, "Privatverkauf") ||
-		!strings.Contains(item.DescriptionKleinanzeigenDE, "keine Garantie oder Rücknahme") {
-		return fmt.Errorf("description_kleinanzeigen_de missing required disclaimer")
+	const kleinanzeigenDisclaimer = "Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme."
+	if !strings.HasSuffix(strings.TrimSpace(item.DescriptionKleinanzeigenDE), kleinanzeigenDisclaimer) {
+		return fmt.Errorf("description_kleinanzeigen_de must end with the required disclaimer")
 	}
 	return nil
 }

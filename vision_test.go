@@ -131,6 +131,12 @@ func TestValidateItem(t *testing.T) {
 		{"negative price", mutate(func(i *Item) { i.PriceEstimateEUR = -1 }), true},
 		{"zero price ok", mutate(func(i *Item) { i.PriceEstimateEUR = 0 }), false},
 		{"kleinanzeigen with full disclaimer passes", mutate(func(i *Item) { i.DescriptionKleinanzeigenDE = validDisclaimer }), false},
+		{"kleinanzeigen disclaimer with trailing whitespace passes", mutate(func(i *Item) {
+			i.DescriptionKleinanzeigenDE = validDisclaimer + "\n  "
+		}), false},
+		{"kleinanzeigen disclaimer not at end fails", mutate(func(i *Item) {
+			i.DescriptionKleinanzeigenDE = validDisclaimer + " Plus extra trailing copy."
+		}), true},
 		{"kleinanzeigen missing Privatverkauf", mutate(func(i *Item) {
 			i.DescriptionKleinanzeigenDE = "Abholung in Panketal oder Versand gegen Aufpreis möglich. keine Garantie oder Rücknahme."
 		}), true},

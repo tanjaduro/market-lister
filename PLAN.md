@@ -13,7 +13,7 @@ Source spec: an earlier `prompt-v4.md` draft (since removed; its content was dis
 | 3 | `prompt.txt` embedded via `//go:embed` | Self-contained binary, no runtime path lookup |
 | 4 | Template parsed once via `template.Must` at package load | Spec: "parse once at package init" |
 | 5 | `validateItem` uses rune count for 70-char title cap | UTF-8 safe; ä/ö/ü/ß count as 1 |
-| 6 | No retries on Gemini API errors in v1 | Per error policy |
+| 6 | Superseded — retry with exponential backoff added for transient errors (503, 429, UNAVAILABLE, RESOURCE_EXHAUSTED). | Per error policy |
 | 7 | Gemini SDK call sites are **not drafted** in this plan — to be written only after `go doc google.golang.org/genai` at build time | Spec capability contract: "Do NOT guess from training data" |
 | 8 | `markdown_test.go` includes the spec's Reima example verbatim as case #1 | Spec explicitly mandates this |
 | 9 | Folders whose slug sanitises to `""` (all non-ASCII) are skipped with a warning | Prevents writing a bare `.md` file with no name; logged so the user can rename |

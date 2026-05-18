@@ -140,55 +140,19 @@ evals-check: evals
 
 ## 2. Robustness & error handling
 
-### 2.1 HEIC and WebP support
-
-`detectMIME` (vision.go:115-123) only recognises JPEG and PNG. iPhones save as HEIC by default; Android sometimes WebP. Right now the binary silently skips them with `slog.Warn("skipping image, unsupported format")` — a folder of 12 iPhone HEIC photos generates a "no usable images" failure.
-
-Gemini accepts `image/heic`, `image/heif`, and `image/webp` as inline image MIME types. The fix is detection-only, not conversion.
-
-Magic-byte extensions for `detectMIME`:
-
-```go
-// WebP: bytes 0-3 = "RIFF", bytes 8-11 = "WEBP"
-if len(data) >= 12 &&
-    data[0] == 'R' && data[1] == 'I' && data[2] == 'F' && data[3] == 'F' &&
-    data[8] == 'W' && data[9] == 'E' && data[10] == 'B' && data[11] == 'P' {
-    return "image/webp", true
-}
-
-// HEIC/HEIF: bytes 4-7 = "ftyp", bytes 8-11 in {"heic","heix","mif1","msf1","heim","heis","hevc","hevx"}
-if len(data) >= 12 && data[4] == 'f' && data[5] == 't' && data[6] == 'y' && data[7] == 'p' {
-    brand := string(data[8:12])
-    switch brand {
-    case "heic", "heix", "heim", "heis":
-        return "image/heic", true
-    case "mif1", "msf1":
-        return "image/heif", true
-    case "hevc", "hevx":
-        return "image/heic", true
-    }
-}
-```
-
-Also extend `listImages` (vision.go:94-111) to include `.heic`, `.heif`, `.webp` extensions.
-
-Add table cases to `TestDetectMIME`: valid HEIC header, valid WebP header, RIFF without WEBP (e.g. .wav), truncated HEIC ftyp box.
-
-**Effort: XS. Highest user-visible win on this list.**
-
-### 2.2 Rate limiting
+### 2.1 Rate limiting
 
 Gemini free tier: 15 req/min, 1,500 req/day for `gemini-2.5-flash`. The CLI is sequential, so 15 RPM is reached only if folders process in under 4 s — possible for small folders. The 1,500/day cap is real if you ever batch-import a backlog.
 
 Add:
 
 1. **Daily counter warning** at startup: if a `~/.cache/market-lister/usage-YYYY-MM-DD.count` file exists with a count ≥1,400, warn the user and ask `[y/N]` to continue. Increment on each successful `Describe` call.
-2. **Per-minute soft limiter** using `golang.org/x/time/rate.NewLimiter(rate.Every(4*time.Second), 1)` (15 RPM). Block at the start of `Describe`. Doesn't change behaviour at concurrency=1 in practice, but matters once §2.5 lands.
+2. **Per-minute soft limiter** using `golang.org/x/time/rate.NewLimiter(rate.Every(4*time.Second), 1)` (15 RPM). Block at the start of `Describe`. Doesn't change behaviour at concurrency=1 in practice, but matters once §2.4 lands.
 3. **`-max-items N` flag** for capping a run.
 
 Default is no quota tracking — keep current sequential behaviour and rely on the model returning 429, which `retryOnTransient` already handles. Only add the counter if you find yourself hitting the daily cap.
 
-### 2.3 Retry strategy v2
+### 2.2 Retry strategy v2
 
 PLAN.md decision #6 says "no retries in v1" but the actual code (vision.go:200-248) already retries with `[5s, 15s]` delays on `503/429/UNAVAILABLE/RESOURCE_EXHAUSTED` markers. Treat the decision as superseded.
 
@@ -212,7 +176,7 @@ Terminal in v2:
 - HTTP 404 (model not found) — fail hard.
 - Folder-level `context.DeadlineExceeded` (the outer ctx is dead) — fail hard.
 
-### 2.4 Context timeout
+### 2.3 Context timeout
 
 Default 120 s for up to 15 photos. At ~3 MB/photo over a typical home upload (50 Mbps = ~6 MB/s effective), upload is ~8 s. Gemini inference for `gemini-2.5-flash` on 15 inline images is ~10-25 s in practice. So 120 s has headroom unless the connection is bad.
 
@@ -228,7 +192,7 @@ Improvements:
 - Log per-folder elapsed time on success (already done at main.go:162) and on failure (currently not — add `time.Since(today)` to the failure log line).
 - Document REQUEST_TIMEOUT_SECONDS in the README troubleshooting section.
 
-### 2.5 Concurrent processing
+### 2.4 Concurrent processing
 
 Sequential today. Each folder is independent: API call, file write, no shared state. Worker-pool is a clean fit.
 
@@ -290,7 +254,6 @@ Test additions:
 
 ### Decision needed — section 2
 
-- **HEIC + WebP** — approve and merge first. (Recommended — single highest-value, lowest-effort change.)
 - **Rate limit counter** — defer until you hit the daily cap, or build now? Default: defer.
 - **Default concurrency** — keep 1 (safest) or 2 (twice the throughput, still within free tier)? Default: keep 1, document the flag.
 - **180 s timeout default** — agree, or stay on 120? Default: bump to 180.
@@ -517,10 +480,9 @@ For each: rough effort (XS / S / M / L), user-visible value, and recommended pos
 
 | Feature | Effort | Value | Position |
 |---|---|---|---|
-| HEIC + WebP MIME support (§2.1) | XS | High | v0.2 — ship first |
 | Photo preprocessing: GPS strip + auto-rotate + downscale | S | High (privacy) | v0.2 |
 | Eval suite (§1) | M | High | v0.2 |
-| Concurrent processing (§2.5) | M | Medium | v0.3 |
+| Concurrent processing (§2.4) | M | Medium | v0.3 |
 | Interactive `$EDITOR` mode | S | Medium | v0.3 |
 | Batch resume / lock files | S | Low | v0.4 if at all |
 | Price lookup (ISBN → openlibrary) | M | Low-Medium | v0.4 |
@@ -530,7 +492,7 @@ For each: rough effort (XS / S / M / L), user-visible value, and recommended pos
 
 ### Argued ordering
 
-**v0.2 — quality and reach.** HEIC fixes the actual current pain point (iPhone photos silently dropped). Photo preprocessing is privacy-critical (GPS in EXIF is a real leak for marketplace photos taken at home); auto-rotation matches the model's expectation; downscale-on-overflow is the only thing standing between you and a hard failure when 20 MB inline limit is hit. The eval suite locks in the prompt before you start tweaking it for new categories. These three together are the v0.2 release.
+**v0.2 — quality and reach.** Photo preprocessing is privacy-critical (GPS in EXIF is a real leak for marketplace photos taken at home); auto-rotation matches the model's expectation; downscale-on-overflow is the only thing standing between you and a hard failure when 20 MB inline limit is hit. The eval suite locks in the prompt before you start tweaking it for new categories. These two together are the v0.2 release.
 
 **v0.3 — throughput and ergonomics.** Concurrency once the eval suite gives you confidence that prompt tweaks aren't breaking anything quietly. Interactive `$EDITOR` mode is small (3-line shell-out) and matters if you're hand-editing every output.
 
@@ -544,7 +506,7 @@ For each: rough effort (XS / S / M / L), user-visible value, and recommended pos
 
 ### Decision needed — section 5
 
-- **v0.2 scope** — three items (HEIC, photo preprocessing, evals) or just HEIC + evals? Default: all three.
+- **v0.2 scope** — both items (photo preprocessing, evals) or just evals first? Default: both.
 - **Web UI** — agree it stays a viewer in a separate repo? Default: yes.
 - **Marketplace auto-post** — drop entirely? (Recommended.)
 

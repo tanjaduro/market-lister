@@ -39,8 +39,8 @@ func TestLoadConfig_DefaultsApplied(t *testing.T) {
 	if cfg.GeminiModel != "gemini-2.5-flash" {
 		t.Errorf("GeminiModel = %q, want default", cfg.GeminiModel)
 	}
-	if cfg.RequestTimeoutSeconds != 120 {
-		t.Errorf("RequestTimeoutSeconds = %d, want 120", cfg.RequestTimeoutSeconds)
+	if cfg.RequestTimeoutSeconds != 180 {
+		t.Errorf("RequestTimeoutSeconds = %d, want 180", cfg.RequestTimeoutSeconds)
 	}
 	if cfg.OutputDir != "" {
 		t.Errorf("OutputDir = %q, want empty", cfg.OutputDir)
@@ -76,9 +76,9 @@ func TestLoadConfig_TimeoutFallbacks(t *testing.T) {
 		env  string
 		want int
 	}{
-		{"abc", 120},
-		{"0", 120},
-		{"-5", 120},
+		{"abc", 180},
+		{"0", 180},
+		{"-5", 180},
 		{"30", 30},
 	}
 	for _, tc := range cases {

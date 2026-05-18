@@ -39,7 +39,7 @@ func LoadConfig() (Config, error) {
 		model = "gemini-2.5-flash"
 	}
 
-	timeout := 120
+	timeout := 180
 	if s := os.Getenv("REQUEST_TIMEOUT_SECONDS"); s != "" {
 		if n, err := strconv.Atoi(s); err == nil && n > 0 {
 			timeout = n

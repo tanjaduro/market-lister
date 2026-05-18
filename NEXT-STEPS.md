@@ -318,27 +318,7 @@ Run locally with `go test -tags=integration ./...`. CI runs it only on `main` br
 
 ### 3.2 Expanded `slugify` table
 
-Existing table (slugify_test.go:6-16) has 5 cases. Below is the full proposed table — 14 cases covering Unicode, emoji, whitespace, trailing/leading hyphens, already-clean inputs, and case normalisation.
-
-| name | in | want |
-|------|----|------|
-| simple spaces | `"reima pink 24"` | `"reima-pink-24"` (existing) |
-| ampersand and dashes collapse | `"Nike Air & Jordan"` | `"nike-air-jordan"` (existing) |
-| umlauts dropped, no transliteration | `"Größe 24"` | `"gre-24"` (existing) |
-| whitespace trim | `"  reima pink 24  "` | `"reima-pink-24"` (existing) |
-| consecutive specials collapse | `"a !@# b"` | `"a-b"` (existing) |
-| empty string | `""` | `""` |
-| only dashes | `"---"` | `""` |
-| only non-ASCII letters | `"中文"` | `""` |
-| mixed ASCII and accent | `"café au lait"` | `"caf-au-lait"` |
-| all emoji | `"🎉🎉🎉"` | `""` |
-| already lowercase ASCII clean | `"already-clean"` | `"already-clean"` |
-| trailing hyphen | `"trailing-"` | `"trailing"` |
-| leading hyphen | `"-leading"` | `"leading"` |
-| double underscore | `"a__b"` | `"a-b"` |
-| number prefix | `"9 lives"` | `"9-lives"` |
-| mixed case | `"MixedCase Foo"` | `"mixedcase-foo"` |
-| dot in filename style | `"thing v2.0"` | `"thing-v20"` |
+Shipped — slugify_test.go now covers 17 cases (5 original + 12 added) for empty/dashes/non-ASCII/accents/emoji/leading-trailing-hyphens/double-underscore/dotted/mixed-case inputs.
 
 ### 3.3 `main.go` and `config.go`
 

@@ -161,7 +161,7 @@ Improvements to consider:
 - **Replace string-match with typed errors** when the SDK exposes them. Right now `isRetryableError` greps the error string. Fragile if the SDK changes wording. Track upstream: `google.golang.org/genai` v1.57.0 wraps `googleapi.Error` — once we can `errors.As` it and read `.Code`, switch to that.
 - **Jittered exponential backoff**. Current is fixed `[5s, 15s]`. With concurrency, multiple goroutines hitting the same 503 retry together is mild thundering-herd. Replace with `base * 2^attempt + jitter` where `jitter = rand.Float64() * base`.
 - **Honour Retry-After**. If the 429 response includes a `retry-after` header, parse it and prefer it over our delay. Requires SDK to surface response headers.
-- **Cap total wait per folder**. Current implicit cap is `len(retryDelays)+1` × per-call timeout ≤ ~6.5 min on the network path. The folder-level context deadline (default 120 s) already bounds this. Good enough.
+- **Cap total wait per folder**. Current implicit cap is `len(retryDelays)+1` × per-call timeout ≤ ~6.5 min on the network path. The folder-level context deadline (default 180 s) already bounds this. Good enough.
 - **Classify 400 vs 429 explicitly**. Already correct (400 is non-retryable). Worth a doc comment to lock in the intent.
 
 Retryable in v2:
@@ -178,7 +178,7 @@ Terminal in v2:
 
 ### 2.3 Context timeout
 
-Default 120 s for up to 15 photos. At ~3 MB/photo over a typical home upload (50 Mbps = ~6 MB/s effective), upload is ~8 s. Gemini inference for `gemini-2.5-flash` on 15 inline images is ~10-25 s in practice. So 120 s has headroom unless the connection is bad.
+Default 180 s for up to 15 photos (shipped in 530981b; previously 120). At ~3 MB/photo over a typical home upload (50 Mbps = ~6 MB/s effective), upload is ~8 s. Gemini inference for `gemini-2.5-flash` on 15 inline images is ~10-25 s in practice.
 
 Symptoms of insufficient timeout:
 
@@ -186,11 +186,10 @@ Symptoms of insufficient timeout:
 - That folder gets `resultFailed`, the rest of the batch continues — good behaviour.
 - `retryOnTransient` does **not** retry deadline-exceeded errors (the marker list doesn't include "deadline exceeded"). Confirmed: vision.go:237-248. Correct.
 
-Improvements:
+Remaining work:
 
-- Bump default to **180 s** in config.go:42. Costs nothing on the happy path.
-- Log per-folder elapsed time on success (already done at main.go:162) and on failure (currently not — add `time.Since(today)` to the failure log line).
-- Document REQUEST_TIMEOUT_SECONDS in the README troubleshooting section.
+- Log per-folder elapsed time on failure (success is already covered at main.go:162) — add `time.Since(today)` to the failure log line.
+- Document `REQUEST_TIMEOUT_SECONDS` in a README troubleshooting section.
 
 ### 2.4 Concurrent processing
 
@@ -256,7 +255,6 @@ Test additions:
 
 - **Rate limit counter** — defer until you hit the daily cap, or build now? Default: defer.
 - **Default concurrency** — keep 1 (safest) or 2 (twice the throughput, still within free tier)? Default: keep 1, document the flag.
-- **180 s timeout default** — agree, or stay on 120? Default: bump to 180.
 
 ---
 

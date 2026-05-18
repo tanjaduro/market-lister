@@ -327,9 +327,7 @@ Shipped — slugify_test.go now covers 17 cases (5 original + 12 added) for empt
 - `TestCollectFolders_ResultIsSorted` — explicit assertion that the returned slice is alphabetical even when `os.ReadDir` returns insertion order. (`os.ReadDir` happens to sort already, but the contract should be tested.)
 - `TestProcessFolder_HappyPath` — exercises the full path through `Describe` using the same fake-generator interface from §3.1. Currently impossible because `processFolder` builds the timeout ctx and calls Describe directly. After §3.1's refactor, this becomes feasible.
 
-`config_test.go` is already thorough (4 tests, 7 sub-cases, isolated from environment via `chdirAway` + `t.Setenv`). One addition:
-
-- `TestLoadConfig_EnvWinsOverDotEnv` — write a `.env` to the temp dir with `GEMINI_API_KEY=from-dotenv`, set shell `GEMINI_API_KEY=from-shell` via `t.Setenv`, assert the shell value wins. Confirms the comment in config.go:21 ("Shell-set variables always win") is enforced, not just hoped for.
+`config_test.go` covers 5 tests / 8 sub-cases including `TestLoadConfig_ShellEnvWinsOverDotEnv`, which locks in the godotenv.Load-not-Overload behaviour described in config.go:21.
 
 ### 3.4 Coverage target
 

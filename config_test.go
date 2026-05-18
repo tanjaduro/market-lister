@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 // chdirAway moves the test out of the project directory so godotenv.Load() in
 // LoadConfig is a no-op (no .env present in t.TempDir). Combined with t.Setenv,
@@ -68,6 +72,27 @@ func TestLoadConfig_AllEnvRespected(t *testing.T) {
 	}
 	if cfg != want {
 		t.Errorf("got %+v, want %+v", cfg, want)
+	}
+}
+
+// TestLoadConfig_ShellEnvWinsOverDotEnv confirms the contract in config.go:21:
+// when GEMINI_API_KEY is set in both the shell and a .env in the working
+// directory, the shell value wins. godotenv.Load (not Overload) is the
+// mechanism — verify that mechanism stays in place.
+func TestLoadConfig_ShellEnvWinsOverDotEnv(t *testing.T) {
+	tmp := t.TempDir()
+	if err := os.WriteFile(filepath.Join(tmp, ".env"), []byte("GEMINI_API_KEY=from-dotenv\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	t.Chdir(tmp)
+	t.Setenv("GEMINI_API_KEY", "from-shell")
+
+	cfg, err := LoadConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.GeminiAPIKey != "from-shell" {
+		t.Errorf("GeminiAPIKey = %q, want %q (shell must win over .env)", cfg.GeminiAPIKey, "from-shell")
 	}
 }
 

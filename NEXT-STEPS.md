@@ -186,9 +186,7 @@ Symptoms of insufficient timeout:
 - That folder gets `resultFailed`, the rest of the batch continues — good behaviour.
 - `retryOnTransient` does **not** retry deadline-exceeded errors (the marker list doesn't include "deadline exceeded"). Confirmed: vision.go:237-248. Correct.
 
-Remaining work:
-
-- Document `REQUEST_TIMEOUT_SECONDS` in a README troubleshooting section.
+Section complete — timeout default bumped to 180 s, both failure paths log `duration_ms`, and the README has a troubleshooting entry for `context deadline exceeded`.
 
 ### 2.4 Concurrent processing
 

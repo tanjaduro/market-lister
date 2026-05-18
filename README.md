@@ -102,6 +102,10 @@ Output is plain Markdown with no Obsidian-specific syntax, so generated files re
 
 By default, the `.md` is written into the source photo folder. Setting `OUTPUT_DIR` separates listings from photos and rewrites image links to absolute paths back into the source folder.
 
+## Troubleshooting
+
+**`context deadline exceeded` in the log.** A single folder took longer than `REQUEST_TIMEOUT_SECONDS` (default 180 s) to upload and complete inference. The other folders in the batch are unaffected; only that one is counted as `failed`. If it happens repeatedly, raise the value in your `.env` (e.g. `REQUEST_TIMEOUT_SECONDS=300`) — usually a slow upload on a thin connection, not a Gemini-side problem.
+
 ## Roadmap
 
 - Prompt evaluation suite under a sibling `evals/` directory using promptfoo.

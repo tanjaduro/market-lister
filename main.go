@@ -144,7 +144,7 @@ func processFolder(cfg Config, client *genai.Client, folderPath string) result {
 
 	item, photos, err := Describe(ctx, client, folderPath, hint, cfg)
 	if err != nil {
-		slog.Error("vision failed", "folder", hint, "error", err)
+		slog.Error("vision failed", "folder", hint, "duration_ms", time.Since(today).Milliseconds(), "error", err)
 		return resultFailed
 	}
 
@@ -156,7 +156,7 @@ func processFolder(cfg Config, client *genai.Client, folderPath string) result {
 	md := Render(item, slug, hint, photos, photoBase, today)
 
 	if err := os.WriteFile(outputPath, []byte(md), 0o644); err != nil {
-		slog.Error("write failed", "folder", hint, "path", outputPath, "error", err)
+		slog.Error("write failed", "folder", hint, "path", outputPath, "duration_ms", time.Since(today).Milliseconds(), "error", err)
 		return resultFailed
 	}
 	slog.Info("done", "folder", hint, "duration_ms", time.Since(today).Milliseconds())

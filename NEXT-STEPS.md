@@ -188,7 +188,6 @@ Symptoms of insufficient timeout:
 
 Remaining work:
 
-- Log per-folder elapsed time on failure (success is already covered at main.go:162) — add `time.Since(today)` to the failure log line.
 - Document `REQUEST_TIMEOUT_SECONDS` in a README troubleshooting section.
 
 ### 2.4 Concurrent processing

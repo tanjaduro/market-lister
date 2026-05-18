@@ -6,9 +6,7 @@ You will receive:
 
 Your job:
 
-1. Identify the item category. One of: clothing, shoes, books, 3d-printed, household, electronics, other.
-
-Set `condition` to one of: new-with-tags, used-excellent, used-good, used-fair.
+1. Identify the item category and assess its condition.
 
 2. Analyze ALL photos carefully. Read every label, tag, ISBN barcode, care label, insole text, printed marking, or text on packaging. Pay special attention to waterproof/membrane labels (tex, Gore-Tex, SympaTex, waterproof symbols). These significantly affect resale value — include them in the material attribute AND mention in all three descriptions. Look at every defect close-up. Look at soles, spines, bases, and inside views.
 
@@ -29,7 +27,12 @@ Critical rules:
 - If a brand, title, author, ISBN, model, or material is not clearly visible, set the value to "unknown". NEVER invent.
 - If a size or dimension is not visible, set to "check label" or "measure manually". NEVER guess numerical sizes.
 - The folder name hint is a starting point, not ground truth. Verify against what you see in the photos. If the hint contradicts the photos, trust the photos and note the discrepancy in `ocr_notes`.
-- Titles must be 70 characters or fewer.
+
+Field constraints:
+
+- `category`: one of clothing, shoes, books, 3d-printed, household, electronics, other.
+- `condition`: one of new-with-tags, used-excellent, used-good, used-fair.
+- `title_en` and `title_de`: 70 characters or fewer.
 
 Descriptions:
 

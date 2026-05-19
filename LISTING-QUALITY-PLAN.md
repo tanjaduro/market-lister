@@ -780,6 +780,22 @@ Before merging the enrichment code, run a one-off probe against the real Gemini 
 
 Output of that probe is the gating evidence for §6 decision G ("two-stage vs single-call"). Until it's run, treat two-stage as the planned path.
 
+**Probe executed 2026-05-19** against `gemini-2.5-flash` via `google.golang.org/genai` v1.57.0. Four cases, results below; full code lived in a `//go:build probe`-tagged test file that was removed after the run (one-shot evidence, not living code).
+
+| Case | Setup | Result |
+|---|---|---|
+| A | `GoogleSearch` + `ResponseMIMEType=application/json` + `ResponseJsonSchema` | **REJECTED** — `Error 400, Message: Tool use with a response mime type: 'application/json' is unsupported, Status: INVALID_ARGUMENT` |
+| B | `GoogleSearch` + `ResponseMIMEType=application/json` (no schema) | **REJECTED** — same error message |
+| C | `GoogleSearch` alone | **ACCEPTED** — grounded text response, `GroundingMetadata.GroundingChunks` populated with Web URIs |
+| D | `ResponseMIMEType` + `ResponseJsonSchema` alone (no tools) | **ACCEPTED** — schema-conforming JSON |
+
+Findings:
+
+1. Decision G default confirmed: **two-stage pipeline**. The current `§4.3` design stands.
+2. The rejection is triggered by `ResponseMIMEType=application/json` in combination with *any* tool — not by `ResponseJsonSchema` specifically. Stage 2 must therefore omit `ResponseMIMEType` entirely (already the case in the §4.3 code).
+3. Case C returned grounding URIs via `Candidates[0].GroundingMetadata.GroundingChunks[*].Web.URI` — confirms `groundingURIs()` in §4.3 reads the right field.
+4. Side observation on quality: for the Affenzahn parrot-design shoe, grounded Case C returned the *model* name (`"Lucky Bird"` / `"Sneaker Cotton Lucky Bird"`), while ungrounded Case D returned the *design* name (`"Papagei"`) from training data alone. These are two different fields in real product data (`model_name` vs `design_name`). The §4.3 `enrich_prompt.txt` already asks for both distinctly, which is the right design — but the §4.6 "drop the feature" fallback gains weight: training-data alone may recover the design name for known brands without enrichment, in which case slice D's incremental value is narrower than originally assumed.
+
 ### 4.6 Fallback if enrichment quality is poor
 
 If after a few real folders the enrichment frequently returns wrong model names or hallucinates features, two options exist:

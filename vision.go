@@ -123,8 +123,9 @@ func detectMIME(data []byte) (string, bool) {
 }
 
 // validateItem enforces all spec-level constraints on a freshly parsed Item:
-// title length (rune count) ≤ 70, category and condition in their closed sets,
-// non-negative price estimate.
+// title_en/title_de length (rune count) ≤ 70, title_vinted_de ≤ 80, category
+// and condition in their closed sets, non-negative price bounds with
+// price_min_eur ≤ price_max_eur.
 func validateItem(item Item) error {
 	if len([]rune(item.TitleEN)) > 70 {
 		return fmt.Errorf("title_en exceeds 70 chars")
@@ -132,14 +133,23 @@ func validateItem(item Item) error {
 	if len([]rune(item.TitleDE)) > 70 {
 		return fmt.Errorf("title_de exceeds 70 chars")
 	}
+	if len([]rune(item.TitleVintedDE)) > 80 {
+		return fmt.Errorf("title_vinted_de exceeds 80 chars")
+	}
 	if !validCategories[item.Category] {
 		return fmt.Errorf("invalid category %q", item.Category)
 	}
 	if !validConditions[item.Condition] {
 		return fmt.Errorf("invalid condition %q", item.Condition)
 	}
-	if item.PriceEstimateEUR < 0 {
-		return fmt.Errorf("price_estimate_eur is negative")
+	if item.PriceMinEUR < 0 {
+		return fmt.Errorf("price_min_eur is negative")
+	}
+	if item.PriceMaxEUR < 0 {
+		return fmt.Errorf("price_max_eur is negative")
+	}
+	if item.PriceMinEUR > item.PriceMaxEUR {
+		return fmt.Errorf("price_min_eur (%d) exceeds price_max_eur (%d)", item.PriceMinEUR, item.PriceMaxEUR)
 	}
 	const kleinanzeigenDisclaimer = "Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme."
 	if !strings.HasSuffix(strings.TrimSpace(item.DescriptionKleinanzeigenDE), kleinanzeigenDisclaimer) {
@@ -165,8 +175,9 @@ func itemJSONSchema() any {
 	return map[string]any{
 		"type": "object",
 		"properties": map[string]any{
-			"title_en": stringType,
-			"title_de": stringType,
+			"title_en":        stringType,
+			"title_de":        stringType,
+			"title_vinted_de": stringType,
 			"category": map[string]any{
 				"type": "string",
 				"enum": []string{"clothing", "shoes", "books", "3d-printed", "household", "electronics", "other"},
@@ -182,18 +193,21 @@ func itemJSONSchema() any {
 			"description_vinted_en":        stringType,
 			"description_vinted_de":        stringType,
 			"description_kleinanzeigen_de": stringType,
-			"price_estimate_eur":           map[string]any{"type": "integer"},
+			"price_min_eur":                map[string]any{"type": "integer"},
+			"price_max_eur":                map[string]any{"type": "integer"},
 			"attributes": map[string]any{
 				"type":                 "object",
-				"description":          "Category-relevant attribute keys (brand, size, isbn, material, etc.) mapped to string values.",
+				"description":          "Category-relevant attribute keys (brand, size, isbn, material, model_name, design_name, fastener, sole_type, waterproof_membrane, reflectors, etc.) mapped to string values.",
 				"additionalProperties": stringType,
 			},
 			"ocr_notes": stringType,
 		},
 		"required": []string{
-			"title_en", "title_de", "category", "condition", "flaws",
+			"title_en", "title_de", "title_vinted_de",
+			"category", "condition", "flaws",
 			"description_vinted_en", "description_vinted_de", "description_kleinanzeigen_de",
-			"price_estimate_eur", "attributes", "ocr_notes",
+			"price_min_eur", "price_max_eur",
+			"attributes", "ocr_notes",
 		},
 	}
 }

@@ -6,13 +6,15 @@ package main
 type Item struct {
 	TitleEN                    string            `json:"title_en"`
 	TitleDE                    string            `json:"title_de"`
+	TitleVintedDE              string            `json:"title_vinted_de"`
 	Category                   string            `json:"category"`
 	Condition                  string            `json:"condition"`
 	Flaws                      []string          `json:"flaws"`
 	DescriptionVintedEN        string            `json:"description_vinted_en"`
 	DescriptionVintedDE        string            `json:"description_vinted_de"`
 	DescriptionKleinanzeigenDE string            `json:"description_kleinanzeigen_de"`
-	PriceEstimateEUR           int               `json:"price_estimate_eur"`
+	PriceMinEUR                int               `json:"price_min_eur"`
+	PriceMaxEUR                int               `json:"price_max_eur"`
 	Attributes                 map[string]string `json:"attributes"`
 	OCRNotes                   string            `json:"ocr_notes"`
 }

@@ -103,9 +103,11 @@ func TestValidateItem(t *testing.T) {
 	valid := Item{
 		TitleEN:                    "ok",
 		TitleDE:                    "ok",
+		TitleVintedDE:              "ok",
 		Category:                   "books",
 		Condition:                  "used-good",
-		PriceEstimateEUR:           5,
+		PriceMinEUR:                4,
+		PriceMaxEUR:                6,
 		DescriptionKleinanzeigenDE: validDisclaimer,
 	}
 	mutate := func(f func(*Item)) Item {
@@ -128,8 +130,14 @@ func TestValidateItem(t *testing.T) {
 		{"title_de 71 chars", mutate(func(i *Item) { i.TitleDE = strings.Repeat("b", 71) }), true},
 		{"invalid category", mutate(func(i *Item) { i.Category = "bogus" }), true},
 		{"invalid condition", mutate(func(i *Item) { i.Condition = "almost-new" }), true},
-		{"negative price", mutate(func(i *Item) { i.PriceEstimateEUR = -1 }), true},
-		{"zero price ok", mutate(func(i *Item) { i.PriceEstimateEUR = 0 }), false},
+		{"title_vinted_de exactly 80 ASCII chars", mutate(func(i *Item) { i.TitleVintedDE = strings.Repeat("a", 80) }), false},
+		{"title_vinted_de 81 ASCII chars", mutate(func(i *Item) { i.TitleVintedDE = strings.Repeat("a", 81) }), true},
+		{"title_vinted_de 81 multibyte runes", mutate(func(i *Item) { i.TitleVintedDE = strings.Repeat("ä", 81) }), true},
+		{"negative price_min_eur", mutate(func(i *Item) { i.PriceMinEUR = -1 }), true},
+		{"negative price_max_eur", mutate(func(i *Item) { i.PriceMaxEUR = -1 }), true},
+		{"price_min equals price_max ok", mutate(func(i *Item) { i.PriceMinEUR = 10; i.PriceMaxEUR = 10 }), false},
+		{"price_min greater than price_max", mutate(func(i *Item) { i.PriceMinEUR = 20; i.PriceMaxEUR = 10 }), true},
+		{"zero prices ok", mutate(func(i *Item) { i.PriceMinEUR = 0; i.PriceMaxEUR = 0 }), false},
 		{"kleinanzeigen with full disclaimer passes", mutate(func(i *Item) { i.DescriptionKleinanzeigenDE = validDisclaimer }), false},
 		{"kleinanzeigen disclaimer with trailing whitespace passes", mutate(func(i *Item) {
 			i.DescriptionKleinanzeigenDE = validDisclaimer + "\n  "

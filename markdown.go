@@ -26,7 +26,8 @@ status: draft
 platforms: [vinted, kleinanzeigen]
 category: {{.Item.Category}}
 condition: {{.Item.Condition}}
-price_estimate_eur: {{.Item.PriceEstimateEUR}}
+price_min_eur: {{.Item.PriceMinEUR}}
+price_max_eur: {{.Item.PriceMaxEUR}}
 source_folder: "{{.FolderName}}"
 date_added: {{.Date}}
 attributes:
@@ -60,7 +61,7 @@ flaws:
 
 - Category: {{.Item.Category}}
 - Condition: {{.Item.Condition}}
-- Price estimate: {{.Item.PriceEstimateEUR}} EUR
+- Price: {{.Item.PriceMinEUR}}-{{.Item.PriceMaxEUR}} EUR
 {{- range $k, $v := .Item.Attributes }}
 - {{$k}}: {{$v}}
 {{- end }}

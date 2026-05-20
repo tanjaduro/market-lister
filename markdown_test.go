@@ -10,10 +10,11 @@ func TestRender(t *testing.T) {
 	fixedDate := time.Date(2026, 5, 14, 0, 0, 0, 0, time.UTC)
 
 	reimaItem := Item{
-		TitleEN:   "Reima pink kids sneakers, EU 24 / US 8 (16 cm)",
-		TitleDE:   "Reima rosa Kinder-Sneaker, Gr. 24 / US 8 (16 cm)",
-		Category:  "shoes",
-		Condition: "used-good",
+		TitleEN:       "Reima pink kids sneakers, EU 24 / US 8 (16 cm)",
+		TitleDE:       "Reima rosa Kinder-Sneaker, Gr. 24 / US 8 (16 cm)",
+		TitleVintedDE: "Reima Sneaker Gr. 24 rosa Klett",
+		Category:      "shoes",
+		Condition:     "used-good",
 		Flaws: []string{
 			"white midsole scuffed and yellowed at toe area",
 			"moderate outsole tread wear",
@@ -21,7 +22,8 @@ func TestRender(t *testing.T) {
 		DescriptionVintedEN:        "Reima kids sneakers in pink, size EU 24 (US 8 / 16 cm insole). Velcro closure, mesh upper, reflective heel pull tab. Good used condition — white midsole is scuffed at the toes and slightly yellowed. From a smoke-free home.",
 		DescriptionVintedDE:        "Reima Kinder-Sneaker in Rosa, Größe EU 24 (US 8 / 16 cm Innensohle). Klettverschluss, Mesh-Obermaterial, reflektierende Lasche an der Ferse. Guter gebrauchter Zustand — weiße Sohle an den Zehen abgerieben und leicht vergilbt. Aus tierfreiem Nichtraucherhaushalt.",
 		DescriptionKleinanzeigenDE: "Verkaufe Reima Kinder-Sneaker in Rosa, Größe 24 (US 8 / 16 cm Innensohle). Klettverschluss und atmungsaktives Mesh-Obermaterial. Reflektierende Lasche an der Ferse für Sichtbarkeit. Guter gebrauchter Zustand — weiße Sohle an den Zehen abgerieben und leicht vergilbt, Profil moderat abgenutzt. Aus tierfreiem Nichtraucherhaushalt. Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme.",
-		PriceEstimateEUR:           10,
+		PriceMinEUR:                8,
+		PriceMaxEUR:                12,
 		Attributes: map[string]string{
 			"brand":    "Reima",
 			"size_eu":  "24",
@@ -36,13 +38,15 @@ func TestRender(t *testing.T) {
 	zaraItem := Item{
 		TitleEN:                    "Zara floral dress, kids size 104",
 		TitleDE:                    "Zara Blumenkleid, Gr. 104",
+		TitleVintedDE:              "Zara Blumenkleid Gr. 104 floral",
 		Category:                   "clothing",
 		Condition:                  "used-excellent",
 		Flaws:                      nil,
 		DescriptionVintedEN:        "Zara floral dress, size 104. Excellent condition, no visible flaws. From a smoke-free home.",
 		DescriptionVintedDE:        "Zara Blumenkleid, Größe 104. Sehr guter Zustand, keine sichtbaren Mängel. Aus tierfreiem Nichtraucherhaushalt.",
 		DescriptionKleinanzeigenDE: "Zara Blumenkleid, Größe 104. Sehr guter Zustand, keine sichtbaren Mängel. Aus tierfreiem Nichtraucherhaushalt. Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme.",
-		PriceEstimateEUR:           8,
+		PriceMinEUR:                6,
+		PriceMaxEUR:                9,
 		Attributes: map[string]string{
 			"brand":     "Zara",
 			"size":      "104",
@@ -54,13 +58,15 @@ func TestRender(t *testing.T) {
 	bookItem := Item{
 		TitleEN:                    "Stephen King — It (paperback)",
 		TitleDE:                    "Stephen King — Es (Taschenbuch)",
+		TitleVintedDE:              "Stephen King Es Taschenbuch",
 		Category:                   "books",
 		Condition:                  "used-good",
 		Flaws:                      []string{"corner of front cover bent"},
 		DescriptionVintedEN:        "Stephen King — It. Good used condition.",
 		DescriptionVintedDE:        "Stephen King — Es. Guter gebrauchter Zustand.",
 		DescriptionKleinanzeigenDE: "Stephen King — Es. Guter gebrauchter Zustand. Abholung in Panketal oder Versand gegen Aufpreis möglich. Privatverkauf — keine Garantie oder Rücknahme.",
-		PriceEstimateEUR:           4,
+		PriceMinEUR:                3,
+		PriceMaxEUR:                5,
 		Attributes:                 map[string]string{"author": "Stephen King", "language": "English"},
 	}
 
@@ -85,7 +91,8 @@ func TestRender(t *testing.T) {
 				`id: "2026-05-14-reima-pink-24"`,
 				`category: shoes`,
 				`condition: used-good`,
-				`price_estimate_eur: 10`,
+				`price_min_eur: 8`,
+				`price_max_eur: 12`,
 				`source_folder: "reima pink 24"`,
 				`brand: "Reima"`,
 				`size_eu: "24"`,

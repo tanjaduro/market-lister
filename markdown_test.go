@@ -93,6 +93,13 @@ func TestRender(t *testing.T) {
 				`condition: used-good`,
 				`price_min_eur: 8`,
 				`price_max_eur: 12`,
+				`vinted_title: "Reima Sneaker Gr. 24 rosa Klett"`,
+				`vinted_condition: "Gut"`,
+				`## Vinted listing — copy these`,
+				`**Condition (DE):** Gut`,
+				`**List price:** 12 EUR (accept down to 8 EUR)`,
+				`- Condition: used-good (Vinted DE: Gut)`,
+				`Nichtraucherhaushalt. Bitte Fotos beachten.`,
 				`source_folder: "reima pink 24"`,
 				`brand: "Reima"`,
 				`size_eu: "24"`,
@@ -121,6 +128,8 @@ func TestRender(t *testing.T) {
 				`None visible.`,
 				`![](<front.jpg>)`,
 				`age_range: "3-4 years"`,
+				`vinted_condition: "Sehr gut"`,
+				`**Condition (DE):** Sehr gut`,
 			},
 			wantNotContains: []string{
 				`## OCR notes (verify these)`,
@@ -156,5 +165,17 @@ func TestRender(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// TestVintedConditionDECoversAllConditions guards against drift: every condition
+// validateItem accepts must have a Vinted DE rendering, or the template would
+// emit an empty vinted_condition. This map is not threaded by the add-category
+// skill, so the guard has to live in a test.
+func TestVintedConditionDECoversAllConditions(t *testing.T) {
+	for cond := range validConditions {
+		if vintedConditionDE[cond] == "" {
+			t.Errorf("condition %q has no entry in vintedConditionDE", cond)
+		}
 	}
 }

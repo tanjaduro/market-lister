@@ -18,11 +18,22 @@ import (
 //go:embed prompt.txt
 var systemPrompt string
 
+// contentGenerator is the single Gemini SDK method Describe and Enrich depend
+// on. *genai.Models satisfies it; tests inject a fake.
+type contentGenerator interface {
+	GenerateContent(
+		ctx context.Context,
+		model string,
+		contents []*genai.Content,
+		cfg *genai.GenerateContentConfig,
+	) (*genai.GenerateContentResponse, error)
+}
+
 // Describe sends all readable images in folderPath to Gemini Vision and returns
 // a validated Item plus the basenames of photos that were sent. The folder name
-// hint is forwarded to the model as a labelling cue. The genai client is reused
+// hint is forwarded to the model as a labelling cue. The generator is reused
 // across calls — create it once in main, pass it in here.
-func Describe(ctx context.Context, client *genai.Client, folderPath, hint string, cfg Config) (Item, []string, error) {
+func Describe(ctx context.Context, gen contentGenerator, folderPath, hint string, cfg Config) (Item, []string, error) {
 	imagePaths, err := listImages(folderPath)
 	if err != nil {
 		return Item{}, nil, fmt.Errorf("list images: %w", err)
@@ -63,7 +74,7 @@ func Describe(ctx context.Context, client *genai.Client, folderPath, hint string
 	var resp *genai.GenerateContentResponse
 	err = retryOnTransient(ctx, func() error {
 		var callErr error
-		resp, callErr = client.Models.GenerateContent(ctx, cfg.GeminiModel, contents, config)
+		resp, callErr = gen.GenerateContent(ctx, cfg.GeminiModel, contents, config)
 		return callErr
 	})
 	if err != nil {

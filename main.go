@@ -78,7 +78,7 @@ func main() {
 			slog.Info("dry-run", "folder", filepath.Base(folder))
 			continue
 		}
-		switch processFolder(cfg, client, folder) {
+		switch processFolder(cfg, client.Models, folder) {
 		case resultDone:
 			done++
 		case resultSkipped:
@@ -115,7 +115,7 @@ func collectFolders(inputDir, singleName string) ([]string, error) {
 
 // processFolder runs one folder end-to-end and returns its outcome.
 // Failures are logged and counted by main; never call os.Exit here.
-func processFolder(cfg Config, client *genai.Client, folderPath string) result {
+func processFolder(cfg Config, gen contentGenerator, folderPath string) result {
 	hint := filepath.Base(folderPath)
 	slug := slugify(hint)
 	if slug == "" {
@@ -142,7 +142,7 @@ func processFolder(cfg Config, client *genai.Client, folderPath string) result {
 		time.Duration(cfg.RequestTimeoutSeconds)*time.Second)
 	defer cancel()
 
-	item, photos, err := Describe(ctx, client, folderPath, hint, cfg)
+	item, photos, err := Describe(ctx, gen, folderPath, hint, cfg)
 	if err != nil {
 		slog.Error("vision failed", "folder", hint, "duration_ms", time.Since(today).Milliseconds(), "error", err)
 		return resultFailed

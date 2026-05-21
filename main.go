@@ -152,7 +152,13 @@ func processFolder(cfg Config, gen contentGenerator, folderPath string) result {
 		return resultFailed
 	}
 
-	item = Enrich(ctx, gen, item, cfg)
+	// Stage 2 gets a fresh context so a slow or retrying Describe cannot starve
+	// enrichment of its deadline. Derived from Background, not ctx, by design.
+	enrichCtx, enrichCancel := context.WithTimeout(context.Background(),
+		time.Duration(cfg.EnrichTimeoutSeconds)*time.Second)
+	defer enrichCancel()
+
+	item = Enrich(enrichCtx, gen, item, cfg)
 
 	photoBase := ""
 	if cfg.OutputDir != "" {

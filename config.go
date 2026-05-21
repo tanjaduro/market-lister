@@ -16,6 +16,7 @@ type Config struct {
 	OutputDir             string
 	GeminiModel           string
 	RequestTimeoutSeconds int
+	EnrichTimeoutSeconds  int
 	EnableEnrichment      bool
 }
 
@@ -47,6 +48,16 @@ func LoadConfig() (Config, error) {
 		}
 	}
 
+	// Stage 2 enrichment gets its own budget: it is a single grounded text call,
+	// not a multi-image vision request, so it needs far less time than Describe.
+	// A separate value also stops a slow Stage 1 from starving Stage 2.
+	enrichTimeout := 30
+	if s := os.Getenv("ENRICH_TIMEOUT_SECONDS"); s != "" {
+		if n, err := strconv.Atoi(s); err == nil && n > 0 {
+			enrichTimeout = n
+		}
+	}
+
 	enableEnrichment, _ := strconv.ParseBool(os.Getenv("ENABLE_ENRICHMENT"))
 
 	return Config{
@@ -55,6 +66,7 @@ func LoadConfig() (Config, error) {
 		OutputDir:             os.Getenv("OUTPUT_DIR"),
 		GeminiModel:           model,
 		RequestTimeoutSeconds: timeout,
+		EnrichTimeoutSeconds:  enrichTimeout,
 		EnableEnrichment:      enableEnrichment,
 	}, nil
 }

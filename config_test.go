@@ -58,6 +58,7 @@ func TestLoadConfig_AllEnvRespected(t *testing.T) {
 	t.Setenv("OUTPUT_DIR", "/custom/out")
 	t.Setenv("GEMINI_MODEL", "gemini-1.5-pro")
 	t.Setenv("REQUEST_TIMEOUT_SECONDS", "60")
+	t.Setenv("ENRICH_TIMEOUT_SECONDS", "45")
 
 	cfg, err := LoadConfig()
 	if err != nil {
@@ -69,6 +70,7 @@ func TestLoadConfig_AllEnvRespected(t *testing.T) {
 		OutputDir:             "/custom/out",
 		GeminiModel:           "gemini-1.5-pro",
 		RequestTimeoutSeconds: 60,
+		EnrichTimeoutSeconds:  45,
 	}
 	if cfg != want {
 		t.Errorf("got %+v, want %+v", cfg, want)

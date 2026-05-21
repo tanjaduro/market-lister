@@ -16,6 +16,7 @@ type Config struct {
 	OutputDir             string
 	GeminiModel           string
 	RequestTimeoutSeconds int
+	EnableEnrichment      bool
 }
 
 // LoadConfig loads .env if present (shell env wins via godotenv.Load, not Overload)
@@ -46,11 +47,14 @@ func LoadConfig() (Config, error) {
 		}
 	}
 
+	enableEnrichment, _ := strconv.ParseBool(os.Getenv("ENABLE_ENRICHMENT"))
+
 	return Config{
 		GeminiAPIKey:          key,
 		InputDir:              inputDir,
 		OutputDir:             os.Getenv("OUTPUT_DIR"),
 		GeminiModel:           model,
 		RequestTimeoutSeconds: timeout,
+		EnableEnrichment:      enableEnrichment,
 	}, nil
 }

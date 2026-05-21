@@ -28,6 +28,7 @@ func main() {
 	folderFlag := flag.String("folder", "", "process a single named subfolder")
 	outputFlag := flag.String("output", "", "write .md files here instead of source folder")
 	dryRun := flag.Bool("dry-run", false, "list folders without calling the API")
+	enrichFlag := flag.Bool("enrich", false, "enable Stage 2 product enrichment via web search")
 	flag.Parse()
 
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stderr, nil)))
@@ -39,6 +40,9 @@ func main() {
 	}
 	if *outputFlag != "" {
 		cfg.OutputDir = *outputFlag
+	}
+	if *enrichFlag {
+		cfg.EnableEnrichment = true
 	}
 
 	if _, err := os.Stat(cfg.InputDir); err != nil {
@@ -147,6 +151,8 @@ func processFolder(cfg Config, gen contentGenerator, folderPath string) result {
 		slog.Error("vision failed", "folder", hint, "duration_ms", time.Since(today).Milliseconds(), "error", err)
 		return resultFailed
 	}
+
+	item = Enrich(ctx, gen, item, cfg)
 
 	photoBase := ""
 	if cfg.OutputDir != "" {
